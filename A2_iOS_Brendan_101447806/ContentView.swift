@@ -54,6 +54,9 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("Product Viewer")
+            .onAppear {
+                PersistenceController.loadSampleData(context: viewContext)
+            }
         }
     }
 }
@@ -62,6 +65,7 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
     
 
