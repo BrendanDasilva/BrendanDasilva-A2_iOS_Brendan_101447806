@@ -21,6 +21,9 @@ struct ContentView: View {
     // track the current product index for navigation
     @State private var currentIndex = 0
     
+    // search state
+    @State private var searchQuery = ""
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -54,8 +57,20 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("Product Viewer")
+            .searchable(text: $searchQuery)
             .onAppear {
                 PersistenceController.loadSampleData(context: viewContext)
+            }
+            .onChange(of: searchQuery) {
+                if searchQuery.isEmpty {
+                    products.nsPredicate = nil
+                } else {
+                    products.nsPredicate = NSPredicate(
+                        format: "name CONTAINS[c] %@ OR desc CONTAINS[c] %@ OR provider CONTAINS[c] %@",
+                        searchQuery, searchQuery, searchQuery
+                    )
+                }
+                currentIndex = 0
             }
         }
     }
