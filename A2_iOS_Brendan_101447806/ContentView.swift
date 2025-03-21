@@ -72,6 +72,14 @@ struct ContentView: View {
                 }
                 currentIndex = 0
             }
+            .toolbar {
+                // view all products list button
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink("View All Items") {
+                        ProductListView()
+                    }
+                }
+            }
         }
     }
 }
