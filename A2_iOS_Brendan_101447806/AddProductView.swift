@@ -17,41 +17,98 @@ struct AddProductView: View {
     @State private var price = ""
     @State private var provider = ""
     
+    // error handling
+    @State private var showAlert = false
+    @State private var errorMessage = ""
     
     var body: some View {
         NavigationView {
             Form {
-                TextField("Product Name", text: $name)
-                TextField("Description", text: $desc)
-                TextField("Price", text: $price)
-                    .keyboardType(.decimalPad)
-                TextField("Provider", text: $provider)
-                
-                Button("Save") {
-                    let newProduct = Product(context: viewContext)
-                    newProduct.productID = UUID()
-                    newProduct.name = name
-                    newProduct.desc = desc
-                    newProduct.price = Double(price) ?? 0
-                    newProduct.provider = provider
-                    
-                    do {
-                        try viewContext.save()
-                        dismiss()
-                    } catch {
-                        print("Error saving product: \(error.localizedDescription)")
-                    }
+                Section(header: Text("Product Details")) {
+                    TextField("Product Name", text: $name)
+                    TextField("Description", text: $desc)
+                    TextField("Price", text: $price)
+                        .keyboardType(.decimalPad)
+                    TextField("Provider", text: $provider)
                 }
-                .disabled(name.isEmpty || price.isEmpty || provider.isEmpty || desc.isEmpty)
+                
+                Section {
+                    Button(action: validateAndSave) {
+                        Text("Save Product")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .foregroundColor(.white)
+                    }
+                    .background(
+                        Color.blue
+                            .cornerRadius(8)
+                    )
+                    .disabled(!isFormValid)
+                    .opacity(isFormValid ? 1 : 0.5)
+                    .listRowInsets(EdgeInsets()) // remove default padding
+                    .listRowBackground(Color.clear) // clear section background
+                }
             }
             .navigationTitle("Add Product")
+            .alert("Invalid Input", isPresented: $showAlert) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
             .toolbar {
-                ToolbarItem(placement: .keyboard) {
+                // keyboard dismissal button
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
                     Button("Done") {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil)
                     }
                 }
             }
         }
     }
+    
+    // helper property for validation
+    private var isFormValid: Bool {
+        !name.isEmpty && !desc.isEmpty && !price.isEmpty && !provider.isEmpty
+    }
+    
+    // price validation helper functions and creation of new product
+    private func validateAndSave() {
+        // validate price format
+        guard let priceValue = Double(price) else {
+            errorMessage = "Please enter a valid number for price"
+            showAlert = true
+            return
+        }
+        
+        // validate positive price
+        guard priceValue > 0 else {
+            errorMessage = "Price must be greater than zero"
+            showAlert = true
+            return
+        }
+        
+        // create new product
+        let newProduct = Product(context: viewContext)
+        newProduct.productID = UUID()
+        newProduct.name = name
+        newProduct.desc = desc
+        newProduct.price = priceValue
+        newProduct.provider = provider
+        
+        // save to Core Data
+        do {
+            try viewContext.save()
+            dismiss()
+        } catch {
+            errorMessage = "Failed to save product: \(error.localizedDescription)"
+            showAlert = true
+        }
+    }
+}
+
+#Preview {
+    AddProductView()
+        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
