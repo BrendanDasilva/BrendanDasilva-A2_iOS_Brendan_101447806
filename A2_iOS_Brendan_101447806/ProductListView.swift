@@ -16,15 +16,20 @@ struct ProductListView: View {
     
     var body: some View {
         List(products, id: \.self) { product in
-            VStack(alignment: .leading) {
-                Text(product.name ?? "")
+            VStack(alignment: .leading, spacing: 4) {
+                Text(product.provider ?? "Unknown Provider")
                     .font(.headline)
-                Text(product.desc ?? "")
-                    .font(.subheadline)
-                Text(product.desc ?? "")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                Text(product.name ?? "Unnamed Product")
+                    .font(.headline)
+                VStack(alignment: .leading) {
+                    Text("$\(String(format: "%.2f", product.price))")
+                        .font(.subheadline)
+                    Text(product.desc ?? "No description available")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
+            .padding(.vertical, 8)
         }
         .navigationTitle("All Products")
     }
