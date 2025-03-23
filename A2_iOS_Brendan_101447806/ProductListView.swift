@@ -16,7 +16,8 @@ struct ProductListView: View {
     ) var products: FetchedResults<Product>
     
     @State private var productToEdit: Product?
-
+    @State private var showDeleteAlert = false
+    
     var body: some View {
         List(products, id: \.self) { product in
             VStack(alignment: .leading, spacing: 4) {
@@ -56,12 +57,18 @@ struct ProductListView: View {
             AddProductView(productToEdit: product)
                 .environment(\.managedObjectContext, viewContext)
         }
+        .alert("Product Deleted", isPresented: $showDeleteAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("The product was successfully deleted.")
+        }
     }
     
     private func deleteProduct(_ product: Product) {
         viewContext.delete(product)
         do {
             try viewContext.save()
+            showDeleteAlert = true
         } catch {
             print("Error deleting product: \(error.localizedDescription)")
         }

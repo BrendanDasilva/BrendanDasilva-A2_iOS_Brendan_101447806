@@ -17,6 +17,9 @@ struct AddProductView: View {
     @State private var price = ""
     @State private var provider = ""
     
+    // success alert
+    @State private var showSuccessAlert = false
+    
     // error handling
     @State private var showAlert = false
     @State private var errorMessage = ""
@@ -62,6 +65,13 @@ struct AddProductView: View {
                 }
             }
             .navigationTitle("Add Product")
+            .alert("Product Saved", isPresented: $showSuccessAlert) {
+                Button("OK") {
+                    dismiss()
+                }
+            } message: {
+                Text("Your product was successfully saved.")
+            }
             .alert("Invalid Input", isPresented: $showAlert) {
                 Button("OK") { }
             } message: {
@@ -163,7 +173,7 @@ struct AddProductView: View {
         // save to Core Data
         do {
             try viewContext.save()
-            dismiss()
+            showSuccessAlert = true
         } catch {
             errorMessage = "Failed to save product: \(error.localizedDescription)"
             showAlert = true
