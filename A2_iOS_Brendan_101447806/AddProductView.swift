@@ -79,8 +79,8 @@ struct AddProductView: View {
         let allowedCharacters = CharacterSet.alphanumerics.union(.whitespaces)
         
         // name validation
-        if name.count > 50 {
-            errorMessage = "Product name must be ≤ 50 characters"
+        if name.count > 30 {
+            errorMessage = "Product name must be ≤ 30 characters"
             showAlert = true
             return
         }
@@ -92,8 +92,8 @@ struct AddProductView: View {
         }
         
         // description validation
-        if desc.count > 100 {
-            errorMessage = "Description must be ≤ 100 characters"
+        if desc.count > 60 {
+            errorMessage = "Description must be ≤ 60 characters"
             showAlert = true
             return
         }
@@ -118,8 +118,8 @@ struct AddProductView: View {
         }
         
         // provider validation
-        if provider.count > 25 {
-            errorMessage = "Provider must be ≤ 25 characters"
+        if provider.count > 20 {
+            errorMessage = "Provider must be ≤ 20 characters"
             showAlert = true
             return
         }
