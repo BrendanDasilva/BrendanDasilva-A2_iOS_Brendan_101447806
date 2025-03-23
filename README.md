@@ -2,7 +2,7 @@
 
 ## 📱 Product Viewer App (iOS – Core Data)
 
-This iOS application was created for **Lab Assignment 2** in the Full Stack Development program. It allows users to view, search, add, and manage a list of products using **Core Data** for local storage.
+This iOS application was created for **Lab Assignment 2** in the Mobile Application Development II course. It allows users to view, search, add, and manage a list of products using **Core Data** for local storage.
 
 ---
 
