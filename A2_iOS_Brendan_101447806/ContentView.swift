@@ -9,53 +9,70 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    // core Data context for database operations
     @Environment(\.managedObjectContext) private var viewContext
-    
-    // fetch products from Core Data, sorted by name
+
     @FetchRequest(
         entity: Product.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Product.name, ascending: true)]
     ) var products: FetchedResults<Product>
-    
-    // track the current product index for navigation
+
     @State private var currentIndex = 0
-    
-    // search state
     @State private var searchQuery = ""
-    
+
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                // show empty state if no products exist
-                if products.isEmpty {
-                    Text("No products found")
-                } else {
-                    // product details
-                    Group {
-                        Text("Product \(currentIndex + 1)/\(products.count)")
-                            .font(.headline)
-                        Text("Name: \(products[currentIndex].name ?? "")")
-                        Text("Description: \(products[currentIndex].desc ?? "")")
-                        Text("Price: $\(String(format: "%.2f", products[currentIndex].price))")
-                        Text("Provider: \(products[currentIndex].provider ?? "")")
-                    }
-                    
-                    // previous/next navigation buttons
-                    HStack {
-                        Button("Previous") {
-                            currentIndex = max(0, currentIndex - 1)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // show empty state
+                    if products.isEmpty {
+                        Text("No products found")
+                            .padding(.top)
+                            .padding(.horizontal)
+                    } else {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Product \(currentIndex + 1)/\(products.count)")
+                                .font(.headline)
+                            Text("Name: \(products[currentIndex].name ?? "")")
+                            Text("Description: \(products[currentIndex].desc ?? "")")
+                            Text("Price: $\(String(format: "%.2f", products[currentIndex].price))")
+                            Text("Provider: \(products[currentIndex].provider ?? "")")
                         }
-                        .disabled(currentIndex == 0)
-                        
-                        Button("Next") {
-                            currentIndex = min(products.count - 1, currentIndex + 1)
+                        .padding([.top, .horizontal])
+
+                        // Navigation buttons
+                        HStack {
+                            Button(action: {
+                                currentIndex = max(0, currentIndex - 1)
+                            }) {
+                                Text("Previous")
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(currentIndex == 0 ? Color.gray : Color.blue)
+                                    .cornerRadius(8)
+                            }
+                            .disabled(currentIndex == 0)
+
+                            Spacer()
+
+                            Button(action: {
+                                currentIndex = min(products.count - 1, currentIndex + 1)
+                            }) {
+                                Text("Next")
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(currentIndex == products.count - 1 ? Color.gray : Color.blue)
+                                    .cornerRadius(8)
+                            }
+                            .disabled(currentIndex == products.count - 1)
                         }
-                        .disabled(currentIndex == products.count - 1)
+                        .padding(.horizontal)
+                        .padding(.top, 8)
                     }
                 }
+                .padding(.top)
             }
-            .padding()
             .navigationTitle("Product Viewer")
             .searchable(text: $searchQuery)
             .onAppear {
@@ -73,7 +90,6 @@ struct ContentView: View {
                 currentIndex = 0
             }
             .toolbar {
-                // view all products list button
                 ToolbarItem(placement: .navigationBarLeading) {
                     NavigationLink("View All Items") {
                         ProductListView()
