@@ -21,6 +21,9 @@ struct AddProductView: View {
     @State private var showAlert = false
     @State private var errorMessage = ""
     
+    //
+    var productToEdit: Product?
+    
     var body: some View {
         NavigationView {
             Form {
@@ -49,6 +52,15 @@ struct AddProductView: View {
                     .listRowBackground(Color.clear) // clear section background
                 }
             }
+            .onAppear {
+                if let product = productToEdit {
+                    // Pre-fill fields when editing
+                    name = product.name ?? ""
+                    desc = product.desc ?? ""
+                    price = String(format: "%.2f", product.price)
+                    provider = product.provider ?? ""
+                }
+            }
             .navigationTitle("Add Product")
             .alert("Invalid Input", isPresented: $showAlert) {
                 Button("OK") { }
@@ -75,8 +87,10 @@ struct AddProductView: View {
     
     // price validation helper functions and creation of new product
     private func validateAndSave() {
-        // validate character limits and allowed characters
-        let allowedCharacters = CharacterSet.alphanumerics.union(.whitespaces)
+        // allow letters, numbers, spaces, and dashes
+        let allowedCharacters = CharacterSet.alphanumerics
+            .union(.whitespaces)
+            .union(CharacterSet(charactersIn: "-"))
         
         // name validation
         if name.count > 30 {
@@ -129,13 +143,22 @@ struct AddProductView: View {
             return
         }
         
-        // create new product
-        let newProduct = Product(context: viewContext)
-        newProduct.productID = UUID()
-        newProduct.name = name
-        newProduct.desc = desc
-        newProduct.price = priceValue
-        newProduct.provider = provider
+        if let product = productToEdit {
+            // update existing product
+            product.name = name
+            product.desc = desc
+            product.price = priceValue
+            product.provider = provider
+        } else {
+            // create new product
+            let newProduct = Product(context: viewContext)
+            newProduct.productID = UUID()
+            newProduct.name = name
+            newProduct.desc = desc
+            newProduct.price = priceValue
+            newProduct.provider = provider
+        }
+        
         
         // save to Core Data
         do {
