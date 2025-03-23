@@ -75,16 +75,56 @@ struct AddProductView: View {
     
     // price validation helper functions and creation of new product
     private func validateAndSave() {
-        // validate price format
+        // validate character limits and allowed characters
+        let allowedCharacters = CharacterSet.alphanumerics.union(.whitespaces)
+        
+        // name validation
+        if name.count > 50 {
+            errorMessage = "Product name must be ≤ 50 characters"
+            showAlert = true
+            return
+        }
+        
+        if name.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
+            errorMessage = "Name can only contain letters and numbers"
+            showAlert = true
+            return
+        }
+        
+        // description validation
+        if desc.count > 100 {
+            errorMessage = "Description must be ≤ 100 characters"
+            showAlert = true
+            return
+        }
+        
+        if desc.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
+            errorMessage = "Description can only contain letters and numbers"
+            showAlert = true
+            return
+        }
+        
+        // price validation (existing)
         guard let priceValue = Double(price) else {
             errorMessage = "Please enter a valid number for price"
             showAlert = true
             return
         }
         
-        // validate positive price
         guard priceValue > 0 else {
             errorMessage = "Price must be greater than zero"
+            showAlert = true
+            return
+        }
+        
+        // provider validation
+        if provider.count > 25 {
+            errorMessage = "Provider must be ≤ 25 characters"
+            showAlert = true
+            return
+        }
+        if provider.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
+            errorMessage = "Provider can only contain letters and numbers"
             showAlert = true
             return
         }
